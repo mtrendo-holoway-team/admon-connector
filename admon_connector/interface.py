@@ -1,15 +1,24 @@
 from abc import ABC, abstractmethod
 from datetime import date
-
 from pydantic import BaseModel
+from typing import Any
 
 
+    
 class AdMonCost(BaseModel):
-    cost_date: date
-    source: str
-    medium: str
-    cost: float
-
+    id: int
+    offerId: int
+    date: date
+    status: str
+    comment: str
+    totalPrice: float
+    reward: float
+    hold: bool
+    type: str #Enum?
+   
+class ConversionPage(BaseModel):
+    count: int
+    rows: list[AdMonCost]
 
 class Connector(ABC):
     @abstractmethod
