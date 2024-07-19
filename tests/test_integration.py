@@ -10,9 +10,9 @@ from admon_connector.admon import AdmonConnector
     "date_from,date_to,expected",
     [
         (
-            date(2024, 1, 1),
-            date(2024, 1, 2),
-            {date(2024, 1, 1): 0, date(2024, 1, 2): 0},
+            date(2024, 7, 1),
+            date(2024, 7, 1),
+            {date(2024, 7, 1): 17736304.0},
         ),
     ],
 )
@@ -26,18 +26,14 @@ async def test_check(date_from, date_to, expected):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "date_from,date_to,expected",
+    "date_from,date_to,expected_sum, expected_amount",
     [
-        (
-            date(2024, 1, 1),
-            date(2024, 1, 2),
-            100,
-        ),
+        (date(2024, 1, 1), date(2024, 1, 2), 17736304.0, 4938),
     ],
 )
-async def test_load(date_from, date_to, expected):
+async def test_load(date_from, date_to, expected_sum, expected_amount):
     connector = AdmonConnector()
 
-    result = await connector.load(date_from, date_to)
-
-    assert sum([item.cost for item in result]) == expected
+    result = [item async for item in connector.load(date_from, date_to)]
+    assert len(result) == expected_amount
+    assert sum([item.cost for item in result]) == expected_sum
