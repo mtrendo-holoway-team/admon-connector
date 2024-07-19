@@ -12,13 +12,12 @@ from gql import gql, Client
 class AdmonConnector(Connector):
     
     client : Client
-    token = settings.admon_token
     
-    def __init__(self):
+    def __init__(self, token = settings.admon_token):
         transport = AIOHTTPTransport(
             url='https://partner.letu.ru/api/graphql',
             headers={
-                "Authorization": f"Bearer {self.token}",
+                "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json"
                 }
         )
