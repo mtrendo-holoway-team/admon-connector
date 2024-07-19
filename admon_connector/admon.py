@@ -1,58 +1,62 @@
 from datetime import date
-from admon_connector.interface import AdMonCost, ConversionPage, Connector
+from typing import Iterable
+from collections import defaultdict 
+
+from admon_connector.interface import AdMonCost, AdMonCalc, ConversionPage, Connector
+from settings import settings
+
 from gql.transport.aiohttp import (AIOHTTPTransport, TransportQueryError) # в зависимости
 from gql import gql, Client
 
+
 class AdmonConnector(Connector):
-    transport = AIOHTTPTransport(
-        url='https://partner.letu.ru/api/graphql',
-        headers={
-            "Authorization": f"Bearer {token}", #из окружения
-            "Content-Type": "application/json"
-        }
-    )
     
-    client = Client(
-        transport=transport,
-        fetch_schema_from_transport=False
-    )
+    client : Client
+    token = settings.admon_token
     
-    request = gql(
-        '''
+    def __init__(self):
+        transport = AIOHTTPTransport(
+            url='https://partner.letu.ru/api/graphql',
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": "application/json"
+                }
+        )
+    
+        self.client = Client(
+            transport=transport,
+            fetch_schema_from_transport=False
+        )
+    
+    def __request(self, fields): 
+        return gql(
+        f'''
         query conversions(
-          $where: ConversionFilterInput,
-          $order: String,
-          $limit: Int,
-          $offset: Int
-        ) {
-          conversions(
-            where: $where,
-            order: $order,
-            limit: $limit,
-            offset: $offset
-          ) {
-            count
-            rows {
-              id
-              offerId
-              date
-              status
-              comment
-              totalPrice
-              reward
-              hold
-              type
-            }
-          }
-        }
-      '''
+        $where: ConversionFilterInput,
+        $order: String,
+        $limit: Int,
+        $offset: Int
+        ) {{
+            conversions(
+                where: $where,
+                order: $order,
+                limit: $limit,
+                offset: $offset
+            ) {{
+                count
+                rows {{
+                {'\n'.join(fields)}
+                }}
+            }}
+        }}
+        '''
     )
-    
-    def get_params(self, date_from : date, date_to : date, offset : int, limit = 100, order = "reverse:time"):
+
+    def __get_params(self, date_from : date, date_to : date, offset : int, limit = 100):
         params = {
             "limit": limit,
             "offset": offset,
-            "order": order,
+            "order": "reverse:time",
             "where": {
                 "endTz": f"{date_to.isoformat()}T23:59:59.999+03:00",
                 "startTz": f"{date_from.isoformat()}T00:00:00.000+03:00"
@@ -60,34 +64,50 @@ class AdmonConnector(Connector):
         }
         return params
     
-    async def load(self, date_from: date, date_to: date) -> list[AdMonCost]:
-        
-        #def request
+    async def load(self, date_from: date, date_to: date) -> Iterable[AdMonCost]:
         offset = 0
         limit = 100
-        
-        while True: #Do while
+        while True:
             response = await self.client.execute_async(
-                    self.request, 
-                    variable_values=self.get_params(
-                        date_from=date_from, 
-                        date_to=date_to, 
-                        offset=offset,
-                        limit=limit
+                document=self.__request(AdMonCost.model_fields.keys()), 
+                variable_values=self.__get_params(
+                    date_from=date_from, 
+                    date_to=date_to, 
+                    offset=offset,
+                    limit=limit
                 )
             )
-            #except TransportQueryError
-            
-            print(offset) # debug
+
             page = ConversionPage(**response['conversions'])
             offset+=limit
+            for item in page.rows:
+                yield item
+              
             if offset > page.count:
                 break
-            #    return page.rows load method / reduce page.rows.reward check method
             
-        
-        return await super().load(date_from, date_to)
-    
     async def check(self, date_from: date, date_to: date) -> dict[date, float]:
-        
-        return await super().check(date_from, date_to)
+        offset = 0
+        limit = 100
+        result = []
+        while True:
+            response = await self.client.execute_async(
+                document=self.__request(AdMonCalc.model_fields.keys()), 
+                variable_values=self.__get_params(
+                    date_from=date_from, 
+                    date_to=date_to, 
+                    offset=offset,
+                    limit=limit
+                )
+            )
+
+            page = ConversionPage(**response['conversions'])
+            offset+=limit
+            result.extend(page.rows)
+            if offset > page.count:
+                break
+        agg_res = defaultdict(float)
+        for item in result:
+            agg_res[item.date.isoformat()] += item.reward
+            
+        return agg_res
