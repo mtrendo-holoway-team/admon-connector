@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Iterator
 
 
 
@@ -17,33 +17,34 @@ class AdMonCost(BaseModel):
     goal: str = Field(..., alias='Тип конверсии')
     updated : datetime = Field(..., alias='Обновлен')
     conversionWindowTime : str = Field(..., alias='Окно конверсии')
-{'': '14861338447', '': 'В обработке', '': 'да', '': '2287', '': '205.83', '': '', '': 'ЛЭТУАЛЬ '}
-{'ID Заказа': '14861801482', 'Статус': 'В обработке', 'Hold': 'да', 'Сумма': '1235', 'Комиссия': '111.15', 'Окно конверсии': '', 'Комментарий': '', '': 'ЛЭТУАЛЬ ', '': '2024-07-16 02:57:57', '': '2024-07-16 02:58:38', '': 'goal2'}
+
+'''
+Названия полей в csv могут отличаться от определенных в gql
 {
 	"fieldsToInclude[]": [
-		"id", #
+		"id", 
 		"city",
-		"status", #
-		"hold", #
-		"totalPrice", #
+		"status", 
+		"hold", 
+		"totalPrice", 
 		"priceWithoutReturns",
 		"websites",
-		"reward", #
-		"time", #
+		"reward", 
+		"time", 
 		"coupon",
 		"referer",
 		"conversionWindowTime",
-		"updated", #
-		"offerId", #
-		"comment", #
+		"updated", 
+		"offerId", 
+		"comment", 
 		"isPaid",
-		"goal", #
+		"goal", 
 		"users",
 		"partner",
 		"partnerId"
 	]
 }
-
+'''
 class ConversionPage(BaseModel):
     count: int
     rows: list[AdMonCost]
