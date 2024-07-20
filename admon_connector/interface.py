@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from pydantic import BaseModel, Field
-from typing import Optional, Iterator
-
+from collections.abc import Iterator
 
 
 class AdMonCost(BaseModel):
@@ -10,7 +9,7 @@ class AdMonCost(BaseModel):
     #offerId: str = Field(..., alias='Статус')
     time: datetime = Field(..., alias='Создан')
     status: str = Field(..., alias='Статус')
-    comment: Optional[str] = Field(..., alias='Комментарий')
+    comment: str | None = Field(..., alias='Комментарий')
     totalPrice: float = Field(..., alias='Сумма')
     reward: float = Field(..., alias='Комиссия')
     hold: str = Field(..., alias='Hold')

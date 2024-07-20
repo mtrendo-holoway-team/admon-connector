@@ -5,8 +5,8 @@ from datetime import date
 import requests
 import csv
 
-from admon_connector.interface import AdMonCost, Connector
-from admon_connector.settings import settings
+from interface import AdMonCost, Connector
+from settings import settings
 
 
 class AdmonConnector(Connector):
