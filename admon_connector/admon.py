@@ -6,7 +6,7 @@ import requests
 import csv
 
 from admon_connector.interface import AdMonCost, Connector
-from admon_connector.settings import settings
+from settings import settings
 
 
 class AdmonConnector(Connector):
