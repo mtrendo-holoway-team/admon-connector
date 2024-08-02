@@ -5,7 +5,7 @@ from datetime import date
 
 import requests
 
-from admon_connector.interface import *
+from admon_connector.interface import AdMonCost, AsyncGenerator, Connector
 from admon_connector.settings import settings
 
 
