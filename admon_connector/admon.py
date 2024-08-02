@@ -5,15 +5,15 @@ from datetime import date
 
 import requests
 
-from admon_connector.interface import AdMonCost, Connector
+from admon_connector.interface import *
 from admon_connector.settings import settings
 
 
 class AdmonConnector(Connector):
-    def __init__(self, token=settings.admon_token):
+    def __init__(self, token=settings.admon_token) -> None:
         self.token = token
 
-    def __request(self, params: dict):
+    def __request(self, params: dict) -> str:
         url = "https://partner.letu.ru/api/exports/conversions"
 
         payload = {
@@ -29,7 +29,7 @@ class AdmonConnector(Connector):
         response.encoding = response.apparent_encoding
         return response.text
 
-    def __get_admon_csv(self, date_from: date, date_to: date):
+    def __get_admon_csv(self, date_from: date, date_to: date) -> list[dict]:
         where = {
             "where": f'{{"startTz" : "{date_from}T00:00:00.000+03:00","endTz": "{date_to}T23:59:59.000+03:00"}}',
             "fieldsToInclude[]": AdMonCost.model_fields.keys(),
@@ -37,7 +37,7 @@ class AdmonConnector(Connector):
         response = self.__request(where)
         return csv.DictReader(response.splitlines(), delimiter=",")
 
-    async def load(self, date_from: date, date_to: date) -> Iterator[AdMonCost]:
+    async def load(self, date_from: date, date_to: date) -> AsyncGenerator[AdMonCost]:
         for row in self.__get_admon_csv(date_from, date_to):
             res = AdMonCost.model_validate(row)
             yield res

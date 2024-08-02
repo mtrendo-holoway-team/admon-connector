@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
+from collections.abc import AsyncGenerator
 from datetime import date, datetime
 
 from pydantic import BaseModel, Field
@@ -59,5 +59,5 @@ class Connector(ABC):
         pass
 
     @abstractmethod
-    async def load(self, date_from: date, date_to: date) -> Iterator[AdMonCost]:
+    async def load(self, date_from: date, date_to: date) -> AsyncGenerator[AdMonCost]:
         pass
