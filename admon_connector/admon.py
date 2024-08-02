@@ -26,7 +26,7 @@ class AdmonConnector(Connector):
 
         response = requests.get(url, params={**payload, **params}, headers=headers, timeout=7200)
         response.encoding = response.apparent_encoding
-        return response.text
+        return str(response.text)
 
     def __get_admon_csv(self, date_from: date, date_to: date) -> csv.DictReader:
         where = {
