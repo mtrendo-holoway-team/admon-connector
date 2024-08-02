@@ -1,16 +1,15 @@
 import csv
 from collections import defaultdict
-from collections.abc import Iterator
 from datetime import date
 
 import requests
 
-from admon_connector.interface import AdMonCost, AsyncGenerator, Connector
+from admon_connector.interface import AdMonCost, AsyncIterator, Connector
 from admon_connector.settings import settings
 
 
 class AdmonConnector(Connector):
-    def __init__(self, token=settings.admon_token) -> None:
+    def __init__(self, token: str = settings.admon_token):
         self.token = token
 
     def __request(self, params: dict) -> str:
@@ -29,7 +28,7 @@ class AdmonConnector(Connector):
         response.encoding = response.apparent_encoding
         return response.text
 
-    def __get_admon_csv(self, date_from: date, date_to: date) -> list[dict]:
+    def __get_admon_csv(self, date_from: date, date_to: date) -> csv.DictReader:
         where = {
             "where": f'{{"startTz" : "{date_from}T00:00:00.000+03:00","endTz": "{date_to}T23:59:59.000+03:00"}}',
             "fieldsToInclude[]": AdMonCost.model_fields.keys(),
@@ -37,14 +36,14 @@ class AdmonConnector(Connector):
         response = self.__request(where)
         return csv.DictReader(response.splitlines(), delimiter=",")
 
-    async def load(self, date_from: date, date_to: date) -> AsyncGenerator[AdMonCost]:
+    async def load(self, date_from: date, date_to: date) -> AsyncIterator[AdMonCost]:
         for row in self.__get_admon_csv(date_from, date_to):
             res = AdMonCost.model_validate(row)
             yield res
 
     async def check(self, date_from: date, date_to: date) -> dict[date, float]:
-        agg_res = defaultdict(float)
+        agg_res: defaultdict = defaultdict(float)
         for row in self.__get_admon_csv(date_from, date_to):
-            row = AdMonCost.model_validate(row)
-            agg_res[row.time.date().isoformat()] += row.reward
+            row_model = AdMonCost.model_validate(row)
+            agg_res[row_model.time.date().isoformat()] += row_model.reward
         return dict(agg_res)
