@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 
 from admon_connector.admon import AdmonConnector
+from admon_connector.settings import Settings
 
 
 @pytest.mark.asyncio
@@ -17,7 +18,8 @@ from admon_connector.admon import AdmonConnector
     ],
 )
 async def test_check(date_from, date_to, expected):
-    connector = AdmonConnector()
+    settings = Settings()
+    connector = AdmonConnector(settings.admon_token)
 
     result = await connector.check(date_from, date_to)
 
@@ -32,8 +34,9 @@ async def test_check(date_from, date_to, expected):
     ],
 )
 async def test_load(date_from, date_to, expected_sum, expected_amount):
-    connector = AdmonConnector()
+    settings = Settings()
+    connector = AdmonConnector(settings.admon_token)
 
     result = [item async for item in connector.load(date_from, date_to)]
     assert len(result) == expected_amount
-    assert sum([item.cost for item in result]) == expected_sum
+    assert sum([item.totalPrice for item in result]) == expected_sum

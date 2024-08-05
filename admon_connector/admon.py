@@ -6,11 +6,10 @@ from datetime import date
 import requests
 
 from admon_connector.interface import AdMonCost, Connector
-from admon_connector.settings import settings
 
 
 class AdmonConnector(Connector):
-    def __init__(self, token: str = settings.admon_token):
+    def __init__(self, token: str):
         self.token = token
 
     def __request(self, params: dict) -> str:
