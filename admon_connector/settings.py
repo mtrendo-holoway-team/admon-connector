@@ -9,6 +9,3 @@ class Settings(BaseSettings):
     )
 
     admon_token: str
-
-
-settings = Settings()

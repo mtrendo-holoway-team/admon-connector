@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 
 from admon_connector.admon import AdmonConnector
+from admon_connector.settings import Settings
 
 
 @pytest.mark.asyncio
@@ -10,14 +11,15 @@ from admon_connector.admon import AdmonConnector
     "date_from,date_to,expected",
     [
         (
-            date(2024, 1, 1),
-            date(2024, 1, 2),
-            {date(2024, 1, 1): 0, date(2024, 1, 2): 0},
+            date(2024, 7, 1),
+            date(2024, 7, 1),
+            {date(2024, 7, 1): 1598019.4295},
         ),
     ],
 )
 async def test_check(date_from, date_to, expected):
-    connector = AdmonConnector()
+    settings = Settings()
+    connector = AdmonConnector(settings.admon_token)
 
     result = await connector.check(date_from, date_to)
 
@@ -26,18 +28,15 @@ async def test_check(date_from, date_to, expected):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "date_from,date_to,expected",
+    "date_from,date_to,expected_sum, expected_amount",
     [
-        (
-            date(2024, 1, 1),
-            date(2024, 1, 2),
-            100,
-        ),
+        (date(2024, 7, 1), date(2024, 7, 1), 1598019.4295, 4938),
     ],
 )
-async def test_load(date_from, date_to, expected):
-    connector = AdmonConnector()
+async def test_load(date_from, date_to, expected_sum, expected_amount):
+    settings = Settings()
+    connector = AdmonConnector(settings.admon_token)
 
-    result = await connector.load(date_from, date_to)
-
-    assert sum([item.cost for item in result]) == expected
+    result = [item async for item in connector.load(date_from, date_to)]
+    assert len(result) == expected_amount
+    assert sum([item.totalPrice for item in result]) == expected_sum
