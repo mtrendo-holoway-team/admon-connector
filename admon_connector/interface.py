@@ -19,35 +19,6 @@ class AdMonCost(BaseModel):
     conversionWindowTime: str = Field(..., alias="Окно конверсии")
 
 
-"""
-Названия полей в csv могут отличаться от определенных в gql
-{
-	"fieldsToInclude[]": [
-		"id",
-		"city",
-		"status",
-		"hold",
-		"totalPrice",
-		"priceWithoutReturns",
-		"websites",
-		"reward",
-		"time",
-		"coupon",
-		"referer",
-		"conversionWindowTime",
-		"updated",
-		"offerId",
-		"comment",
-		"isPaid",
-		"goal",
-		"users",
-		"partner",
-		"partnerId"
-	]
-}
-"""
-
-
 class ConversionPage(BaseModel):
     count: int
     rows: list[AdMonCost]

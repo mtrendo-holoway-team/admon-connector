@@ -1,10 +1,11 @@
 import csv
 from collections import defaultdict
+from collections.abc import AsyncIterator
 from datetime import date
 
 import requests
 
-from admon_connector.interface import AdMonCost, AsyncIterator, Connector
+from admon_connector.interface import AdMonCost, Connector
 from admon_connector.settings import settings
 
 
