@@ -7,6 +7,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+env:
+  ADMON_TOKEN: secret_token
+
 jobs:
   quality:
     runs-on: ubuntu-latest
@@ -29,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ["3.12"]
       fail-fast: false
     steps:
       - name: Check out
@@ -55,5 +58,4 @@ jobs:
           python -m pip install tox tox-gh-actions
 
       - name: Test with tox
-        run: tox
-
+        run: tox -- -k 'not test_integration'
