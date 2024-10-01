@@ -38,5 +38,6 @@ async def test_load(date_from, date_to, expected_sum, expected_amount):
     connector = AdmonConnector(settings.admon_token)
 
     result = [item async for item in connector.load(date_from, date_to)]
+    print(result)
     assert len(result) == expected_amount
     assert sum([item.totalPrice for item in result]) == expected_sum

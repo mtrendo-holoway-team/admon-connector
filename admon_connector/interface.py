@@ -7,16 +7,12 @@ from pydantic import BaseModel, Field
 
 class AdMonCost(BaseModel):
     id: int = Field(..., alias="ID Заказа")
-    # offerId: str = Field(..., alias='Статус')
-    time: datetime = Field(..., alias="Создан")
     status: str = Field(..., alias="Статус")
-    comment: str | None = Field(..., alias="Комментарий")
-    totalPrice: float = Field(..., alias="Сумма")
-    reward: float = Field(..., alias="Комиссия")
     hold: str = Field(..., alias="Hold")
-    goal: str = Field(..., alias="Тип конверсии")
-    updated: datetime = Field(..., alias="Обновлен")
-    conversionWindowTime: str = Field(..., alias="Окно конверсии")
+    totalPrice: float = Field(..., alias="Сумма")
+    websites: str = Field(..., alias="Площадки")
+    reward: float = Field(..., alias="Комиссия")
+    time: datetime = Field(..., alias="Создан")
 
 
 class ConversionPage(BaseModel):
