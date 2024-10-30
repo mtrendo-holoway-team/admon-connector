@@ -30,7 +30,7 @@ class AdmonConnector(Connector):
 
     def __get_admon_csv(self, date_from: date, date_to: date) -> csv.DictReader:
         where = {
-            "where": f'{{ "withAttribution": "true", "startTz" : "{date_from}T00:00:00.000+03:00","endTz": "{date_to}T23:59:59.000+03:00"}}',
+            "where": f'{{ "withAttribution": true, "startTz" : "{date_from}T00:00:00.000+03:00","endTz": "{date_to}T23:59:59.000+03:00"}}',
             "fieldsToInclude[]": AdMonCost.model_fields.keys(),
         }
         response = self.__request(where)
