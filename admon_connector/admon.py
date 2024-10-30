@@ -20,6 +20,7 @@ class AdmonConnector(Connector):
             "dimension": "conversions",
             "order": "reverse:time",
             "withoutItem": "true",
+            "withAttribution": "true",
         }
 
         headers = {"Authorization": f"Bearer {self.token}"}
