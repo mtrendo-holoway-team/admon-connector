@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "admon_connector"
-version = "0.0.4"
+version = "0.0.8"
 description = "Connector to fetch data from AdMon service"
 authors = ["Trifonov Vladimir <fanalytics@mtrendo.com>"]
 repository = "https://github.com/3fonov/admon-connector"
