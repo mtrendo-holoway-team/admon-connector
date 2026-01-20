@@ -6,8 +6,13 @@ from pydantic import BaseModel, Field
 
 
 class AdMonCost(BaseModel):
-    id: int = Field(..., alias="ID Заказа")
-    # offerId: str = Field(..., alias='Статус')
+    id: str = Field(..., alias="ID Заказа")
+    offerId: str = Field(..., alias="Название оффера")
+    status: str = Field(..., alias="Статус")
+    hold: str = Field(..., alias="Hold")
+    totalPrice: float = Field(..., alias="Сумма")
+    websites: str = Field(..., alias="Площадки")
+    reward: float = Field(..., alias="Комиссия")
     time: datetime = Field(..., alias="Создан")
     status: str = Field(..., alias="Статус")
     comment: str | None = Field(..., alias="Комментарий")
