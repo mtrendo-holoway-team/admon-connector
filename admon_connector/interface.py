@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 class AdMonCost(BaseModel):
     id: str = Field(..., alias="ID Заказа")
+    offerId: str = Field(..., alias="Название оффера")
     status: str = Field(..., alias="Статус")
     hold: str = Field(..., alias="Hold")
     totalPrice: float = Field(..., alias="Сумма")

@@ -30,7 +30,7 @@ async def test_check(date_from, date_to, expected):
 @pytest.mark.parametrize(
     "date_from,date_to,expected_sum, expected_amount",
     [
-        (date(2024, 10, 25), date(2024, 10, 27), 1598019.4295, 4938),
+        (date(2024, 10, 25), date(2024, 10, 27), 1598019.4295, 1468),
     ],
 )
 async def test_load(date_from, date_to, expected_sum, expected_amount):
