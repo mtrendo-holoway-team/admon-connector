@@ -13,7 +13,7 @@ from admon_connector.settings import Settings
         (
             date(2024, 7, 1),
             date(2024, 7, 1),
-            {'2024-07-01': pytest.approx(57_018, abs=1)},
+            {"2024-07-01": pytest.approx(57_018, abs=1)},
         ),
     ],
 )
