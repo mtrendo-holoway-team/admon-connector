@@ -16,6 +16,18 @@ class AdMonCost(BaseModel):
     time: datetime = Field(..., alias="Дата создания")
 
 
+class AdMonCostRef(BaseModel):
+    date: date
+    totalPrice: float = 0.0
+    reward: float = 0.0
+
+
+class AdMonCostRefRaw(BaseModel):
+    totalPrice: float = Field(..., alias="Сумма")
+    reward: float = Field(..., alias="Комиссия")
+    time: datetime = Field(..., alias="Дата создания")
+
+
 class ConversionPage(BaseModel):
     count: int
     rows: list[AdMonCost]

@@ -5,7 +5,7 @@ from datetime import date
 
 import requests
 
-from admon_connector.interface import AdMonCost, Connector
+from admon_connector.interface import AdMonCost, AdMonCostRef, AdMonCostRefRaw, Connector
 
 
 class AdmonConnector(Connector):
@@ -28,23 +28,43 @@ class AdmonConnector(Connector):
         response.encoding = response.apparent_encoding
         return str(response.text)
 
-    def __get_admon_csv(self, date_from: date, date_to: date) -> csv.DictReader:
+    def __get_admon_csv(self, date_from: date, date_to: date, fields: list[str]) -> csv.DictReader:
         where = {
             "where": (f'{{ "withAttribution": true, "startTz" : "{date_from}T00:00:00.000+03:00","endTz": "{date_to}T23:59:59.000+03:00"}}'),
-            "fieldsToInclude[]": AdMonCost.model_fields.keys(),
+            "fieldsToInclude[]": fields,
         }
         response = self.__request(where)
         return csv.DictReader(response.splitlines(), delimiter=",")
 
     async def load(self, date_from: date, date_to: date) -> AsyncIterator[AdMonCost]:
-        for row in self.__get_admon_csv(date_from, date_to):
+        for row in self.__get_admon_csv(date_from, date_to, fields=list(AdMonCost.model_fields.keys())):
             print(row)
             res = AdMonCost.model_validate(row)
             yield res
 
+    async def load_ref(self, date_from: date, date_to: date) -> AsyncIterator[AdMonCostRef]:
+        result: dict[date, AdMonCostRef] = {}
+        for row in self.__get_admon_csv(date_from, date_to, fields=list(AdMonCostRefRaw.model_fields.keys())):
+            item = AdMonCostRefRaw.model_validate(row)
+            day = item.time.date()
+            if day not in result:
+                result[day] = AdMonCostRef(date=day)
+            row = result[day]
+            row.totalPrice += item.totalPrice
+            row.reward += item.reward
+
+        for row in result.values():
+            yield AdMonCostRef.model_validate(
+                {
+                    "totalPrice": round(row.totalPrice, 2),
+                    "reward": round(row.reward, 2),
+                    "date": row.date,
+                }
+            )
+
     async def check(self, date_from: date, date_to: date) -> dict[date, float]:
         agg_res: defaultdict = defaultdict(float)
-        for row in self.__get_admon_csv(date_from, date_to):
+        for row in self.__get_admon_csv(date_from, date_to, fields=list(AdMonCost.model_fields.keys())):
             row_model = AdMonCost.model_validate(row)
             agg_res[row_model.time.date().isoformat()] += row_model.reward
         return dict(agg_res)
