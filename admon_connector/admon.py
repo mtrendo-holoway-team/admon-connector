@@ -49,16 +49,16 @@ class AdmonConnector(Connector):
             day = item.time.date()
             if day not in result:
                 result[day] = AdMonCostRef(date=day)
-            row = result[day]
-            row.totalPrice += item.totalPrice
-            row.reward += item.reward
+            cost = result[day]
+            cost.totalPrice += item.totalPrice
+            cost.reward += item.reward
 
-        for row in result.values():
+        for cost in result.values():
             yield AdMonCostRef.model_validate(
                 {
-                    "totalPrice": round(row.totalPrice, 2),
-                    "reward": round(row.reward, 2),
-                    "date": row.date,
+                    "totalPrice": round(cost.totalPrice, 2),
+                    "reward": round(cost.reward, 2),
+                    "date": cost.date,
                 }
             )
 
