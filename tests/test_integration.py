@@ -2,8 +2,7 @@ from datetime import date
 
 import pytest
 
-from admon_connector.admon import AdmonConnector
-from admon_connector.settings import Settings
+from admon_connector.interface import AdMonCostRef
 
 
 @pytest.mark.asyncio
@@ -17,12 +16,8 @@ from admon_connector.settings import Settings
         ),
     ],
 )
-async def test_check(date_from, date_to, expected):
-    settings = Settings()
-    connector = AdmonConnector(settings.admon_token)
-
+async def test_check(connector, date_from, date_to, expected):
     result = await connector.check(date_from, date_to)
-
     assert result == expected
 
 
@@ -33,10 +28,17 @@ async def test_check(date_from, date_to, expected):
         (date(2024, 10, 25), date(2024, 10, 27), pytest.approx(9_415_394, abs=1), 1468),
     ],
 )
-async def test_load(date_from, date_to, expected_sum, expected_amount):
-    settings = Settings()
-    connector = AdmonConnector(settings.admon_token)
-
+async def test_load(connector, date_from, date_to, expected_sum, expected_amount):
     result = [item async for item in connector.load(date_from, date_to)]
     assert len(result) == expected_amount
     assert sum([item.totalPrice for item in result]) == expected_sum
+
+
+@pytest.mark.asyncio
+async def test_load_ref(connector):
+    result = [item async for item in connector.load_ref(date(2024, 10, 25), date(2024, 10, 26))]
+    assert len(result) == 2
+    assert result == [
+        AdMonCostRef(date=date(2024, 10, 26), totalPrice=2735354.91, reward=204221.5),
+        AdMonCostRef(date=date(2024, 10, 25), totalPrice=3653263.83, reward=241017.44),
+    ]
